@@ -3,19 +3,31 @@
 const { readdirSync, renameSync, readFileSync } = require('fs')
 const { createHash } = require('crypto')
 const path = require('path')
-const { ArgumentParser } = require('argparse')
-
-const version = '0.0.1'
-const parser = new ArgumentParser({
-  description: '遍历文件夹重命名文件夹内所有文件'
+const parseArgs = require('./utils/parseArgs')
+const args = parseArgs({
+  define: {
+    version: '0.0.1',
+    description: '遍历文件夹重命名文件夹内所有文件',
+  },
+  f: {
+    alias: 'folder',
+    type: 'str',
+    help: '目标文件夹'
+  },
+	'H': {
+		alias: 'hash',
+		type: 'bool',
+		help: '是否重命名为哈希值',
+		default: false,
+	}
 })
 
-parser.add_argument('-v', '--version', { action: 'version', version })
-parser.add_argument('-f', '--folder', { type: 'str', help: '目标文件夹' })
-parser.add_argument('-H', '--hash', { type: 'str', help: '是否重命名为哈希值', default: 'false' })
-
 function main ({ folder, hash }) {
-	rename(folder, hash === 'true')
+	if (typeof folder === 'string' && folder.length > 0) {
+		rename(folder, hash)
+	} else {
+		throw new TypeError('非法的目标文件夹路径')
+	}
 }
 
 function rename (dirPath, toHash) {
@@ -55,5 +67,4 @@ function rename (dirPath, toHash) {
 	}
 }
 
-const args = parser.parse_args()
 main(args)

@@ -2,16 +2,23 @@
 
 const { resolve, basename } = require('path')
 const { readdirSync, lstatSync, writeFileSync } = require('fs')
-const { ArgumentParser } = require('argparse')
-
-const version = '0.0.1'
-const parser = new ArgumentParser({
-  description: '深度遍历文件夹并输出文件夹结构'
+const parseArgs = require('./utils/parseArgs')
+const args = parseArgs({
+  define: {
+    version: '0.0.1',
+    description: '深度遍历文件夹并输出文件夹结构',
+  },
+  f: {
+    alias: 'folder',
+    type: 'str',
+    help: '目标文件夹'
+  },
+  o: {
+    alias: 'output',
+    type: 'str',
+    help: '输出路径'
+  }
 })
-
-parser.add_argument('-v', '--version', { action: 'version', version })
-parser.add_argument('-f', '--folder', { type: 'str', help: '输入文件夹' })
-parser.add_argument('-o', '--output', { type: 'str', help: '（可选的）输出路径' })
 
 function generateFileList (dirpath, depth = 0) {
   const results = []
@@ -41,11 +48,10 @@ function main ({ folder: input, output }) {
     const resolvedPath = resolve(resolve(output), basename(input) + '.txt')
 
     writeFileSync(resolvedPath, fileList, { encoding: 'utf8' })
-    console.log(`输出目标：${resolvedPath}`)
+    console.log(`输出路径：${resolvedPath}`)
   } else {
     console.log(fileList)
   }
 }
 
-const args = parser.parse_args()
 main(args)

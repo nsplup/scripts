@@ -4,15 +4,18 @@ const fs = require('fs')
 const path = require('path')
 const jschardet = require('jschardet')
 const iconv = require('iconv-lite')
-const { ArgumentParser } = require('argparse')
-
-const version = '0.0.1'
-const parser = new ArgumentParser({
-  description: '计算目标文件包含的汉字数量'
+const parseArgs = require('./utils/parseArgs')
+const args = parseArgs({
+  define: {
+    version: '0.0.1',
+    description: '计算目标文件包含的汉字数量',
+  },
+  i: {
+    alias: 'input',
+    type: 'str',
+    help: '输入路径'
+  }
 })
-
-parser.add_argument('-v', '--version', { action: 'version', version })
-parser.add_argument('-i', '--input', { type: 'str', help: '输入路径' })
 
 function getEncoding (filePath) {
   return new Promise((res, rej) => {
@@ -64,5 +67,4 @@ function main ({ input: filePath }) {
   }
 }
 
-const args = parser.parse_args()
 main(args)

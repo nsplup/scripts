@@ -2,15 +2,18 @@
 
 const fs = require('fs')
 const path = require('path')
-const { ArgumentParser } = require('argparse')
-
-const version = '0.0.1'
-const parser = new ArgumentParser({
-  description: '遍历文件夹并转换文件夹内所有 JSON 字幕为 SRT 格式'
+const parseArgs = require('./utils/parseArgs')
+const args = parseArgs({
+  define: {
+    version: '0.0.1',
+    description: '遍历文件夹并转换文件夹内所有 JSON 字幕为 SRT 格式',
+  },
+  f: {
+    alias: 'folder',
+    type: 'str',
+    help: '输入文件夹'
+  },
 })
-
-parser.add_argument('-v', '--version', { action: 'version', version })
-parser.add_argument('-f', '--folder', { type: 'str', help: '输入文件夹' })
 
 /** 整合除法 */
 function iDivision (divisor, dividend) {
@@ -65,5 +68,4 @@ function main ({ folder: dirPath }) {
   })
 }
 
-const args = parser.parse_args()
 main(args)

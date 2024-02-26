@@ -4,16 +4,23 @@ const fs = require('fs')
 const path = require('path')
 const jschardet = require('jschardet')
 const iconv = require('iconv-lite')
-const { ArgumentParser } = require('argparse')
-
-const version = '0.0.1'
-const parser = new ArgumentParser({
-  description: '遍历文件夹合并文件夹内所有小说章节'
+const parseArgs = require('./utils/parseArgs')
+const args = parseArgs({
+  define: {
+    version: '0.0.1',
+    description: '遍历文件夹合并文件夹内所有小说章节',
+  },
+  f: {
+    alias: 'folder',
+    type: 'str',
+    help: '输入文件夹'
+  },
+  o: {
+    alias: 'output',
+    type: 'str',
+    help: '输出路径'
+  },
 })
-
-parser.add_argument('-v', '--version', { action: 'version', version })
-parser.add_argument('-i', '--input', { type: 'str', help: '输入文件夹' })
-parser.add_argument('-o', '--output', { type: 'str', help: '输出文件夹' })
 
 function getEncoding (filePath) {
   return new Promise((res, rej) => {
@@ -40,7 +47,7 @@ function getEncoding (filePath) {
   })
 }
 
-async function main ({ input, output }) {
+async function main ({ folder: input, output }) {
   const contents = fs.readdirSync(path.resolve(input))
   const title = path.basename(input)
   const novelContent = []
@@ -74,5 +81,4 @@ async function main ({ input, output }) {
   console.log(`已完成: ${ outputPath }`)
 }
 
-const args = parser.parse_args()
 main(args)

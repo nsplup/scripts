@@ -23,7 +23,7 @@ async function main (...rest) {
   const source = await PDFDocument.load(readFileSync(resolve(input)))
   const pages = source.getPages()
 
-  const computedTargets = targets.map((n, i) => parseInt(n) - 1)
+  const computedTargets = targets.map((n, i) => parseInt(n))
 
   let count = 0
   for (let i = 0, length = pages.length; i < length; i++) {
@@ -32,7 +32,8 @@ async function main (...rest) {
       const { width, height } = pages[prevIndex].getSize()
 
       pdfDoc.addPage([width, height])
-      console.log(`新增页面（${ i + count++ } / ${ length + computedTargets.length }）：空白页面`)
+      count += 1
+      console.log(`新增页面（${ i + count } / ${ length + computedTargets.length }）：空白页面`)
     }
 
     const [page] = await pdfDoc.copyPages(source, [i])
@@ -49,4 +50,4 @@ async function main (...rest) {
   console.log(`已完成；耗时：${(Date.now() - startTime) / 1000}秒\n输出目标：${pdfPath}`)
 }
 
-main(...process.argv.slice(2))
+module.exports = main

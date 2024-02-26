@@ -2,16 +2,24 @@
 
 const fs = require('fs')
 const path = require('path')
-const { ArgumentParser } = require('argparse')
-
-const version = '0.0.1'
-const parser = new ArgumentParser({
-  description: '将字体文件转换为 BASE64 后嵌入样式文件'
+const parseArgs = require('./utils/parseArgs')
+const args = parseArgs({
+  define: {
+    version: '0.0.1',
+    description: '将字体文件转换为 BASE64 后嵌入样式文件',
+  },
+  i: {
+    alias: 'input',
+    type: 'str',
+    help: '输入路径'
+  },
+  o: {
+    alias: 'output',
+    type: 'str',
+    help: '输出路径',
+    default: './'
+  }
 })
-
-parser.add_argument('-v', '--version', { action: 'version', version })
-parser.add_argument('-i', '--input', { type: 'str', help: '输入路径' })
-parser.add_argument('-o', '--output', { type: 'str', help: '输出路径', default: './' })
 
 function main ({ input, output }) {
   if (!input) {
@@ -53,5 +61,4 @@ function main ({ input, output }) {
   console.log(`输出路径：${ output }`)
 }
 
-const args = parser.parse_args()
 main(args)

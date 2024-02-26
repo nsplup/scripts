@@ -3,15 +3,18 @@
 const fs = require('fs')
 const path = require('path')
 const sharp = require('sharp')
-const { ArgumentParser } = require('argparse')
-
-const version = '0.0.1'
-const parser = new ArgumentParser({
-  description: '遍历文件夹，寻找所有横向图片并列出'
+const parseArgs = require('./utils/parseArgs')
+const args = parseArgs({
+  define: {
+    version: '0.0.1',
+    description: '遍历文件夹，寻找所有横向图片并列出',
+  },
+  f: {
+    alias: 'folder',
+    type: 'str',
+    help: '目标文件夹'
+  }
 })
-
-parser.add_argument('-v', '--version', { action: 'version', version })
-parser.add_argument('-f', '--folder', { type: 'str', help: '目标文件夹' })
 
 function isImage(file) {
   const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.avif', '.heif']
@@ -62,5 +65,4 @@ function main({ folder: folderPath }) {
   })
 }
 
-const args = parser.parse_args()
 main(args)

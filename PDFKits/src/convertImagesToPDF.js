@@ -57,4 +57,4 @@ async function main (input, output) {
   console.log(`已完成；耗时：${(Date.now() - startTime) / 1000}秒\n输出目标：${pdfPath}`)
 }
 
-main(...process.argv.slice(2))
+module.exports = main
