@@ -1,5 +1,17 @@
+"use strict";
+
 const { resolve, basename } = require('path')
 const { readdirSync, lstatSync, writeFileSync } = require('fs')
+const { ArgumentParser } = require('argparse')
+
+const version = '0.0.1'
+const parser = new ArgumentParser({
+  description: '深度遍历文件夹并输出文件夹结构'
+})
+
+parser.add_argument('-v', '--version', { action: 'version', version })
+parser.add_argument('-f', '--folder', { type: 'str', help: '输入文件夹' })
+parser.add_argument('-o', '--output', { type: 'str', help: '（可选的）输出路径' })
 
 function generateFileList (dirpath, depth = 0) {
   const results = []
@@ -22,7 +34,7 @@ function generateFileList (dirpath, depth = 0) {
   return results.join('\n')
 }
 
-function main (input, output) {
+function main ({ folder: input, output }) {
   const fileList = generateFileList(input)
 
   if (output) {
@@ -35,4 +47,5 @@ function main (input, output) {
   }
 }
 
-main(...process.argv.slice(2))
+const args = parser.parse_args()
+main(args)

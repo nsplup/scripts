@@ -1,7 +1,19 @@
+"use strict";
+
 const fs = require('fs')
 const path = require('path')
+const { ArgumentParser } = require('argparse')
 
-function main (input, output = '.') {
+const version = '0.0.1'
+const parser = new ArgumentParser({
+  description: '将字体文件转换为 BASE64 后嵌入样式文件'
+})
+
+parser.add_argument('-v', '--version', { action: 'version', version })
+parser.add_argument('-i', '--input', { type: 'str', help: '输入路径' })
+parser.add_argument('-o', '--output', { type: 'str', help: '输出路径', default: './' })
+
+function main ({ input, output }) {
   if (!input) {
     console.log('致命错误 - 输入路径不能为空')
     return
@@ -38,7 +50,8 @@ function main (input, output = '.') {
   output = path.resolve(output, name + '_new' + ext)
   fs.writeFileSync(output, newContent, { encoding: 'utf8' })
 
-  console.log(`输出路径：${output}`)
+  console.log(`输出路径：${ output }`)
 }
 
-main(...process.argv.slice(2))
+const args = parser.parse_args()
+main(args)

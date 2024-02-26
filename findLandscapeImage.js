@@ -1,9 +1,20 @@
+"use strict";
+
 const fs = require('fs')
 const path = require('path')
 const sharp = require('sharp')
+const { ArgumentParser } = require('argparse')
+
+const version = '0.0.1'
+const parser = new ArgumentParser({
+  description: '遍历文件夹，寻找所有横向图片并列出'
+})
+
+parser.add_argument('-v', '--version', { action: 'version', version })
+parser.add_argument('-f', '--folder', { type: 'str', help: '目标文件夹' })
 
 function isImage(file) {
-  const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif']
+  const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.avif', '.heif']
   const ext = path.extname(file).toLowerCase()
   return imageExtensions.includes(ext)
 }
@@ -18,7 +29,7 @@ function isWidthGreaterThanHeight(imagePath) {
     })
 }
 
-function main(folderPath) {
+function main({ folder: folderPath }) {
   folderPath = path.resolve(folderPath)
   fs.readdir(folderPath, (err, files) => {
     if (err) {
@@ -51,4 +62,5 @@ function main(folderPath) {
   })
 }
 
-main(...process.argv.slice(2))
+const args = parser.parse_args()
+main(args)

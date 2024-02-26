@@ -2,6 +2,15 @@
 
 const fs = require('fs')
 const path = require('path')
+const { ArgumentParser } = require('argparse')
+
+const version = '0.0.1'
+const parser = new ArgumentParser({
+  description: '遍历文件夹并转换文件夹内所有 JSON 字幕为 SRT 格式'
+})
+
+parser.add_argument('-v', '--version', { action: 'version', version })
+parser.add_argument('-f', '--folder', { type: 'str', help: '输入文件夹' })
 
 /** 整合除法 */
 function iDivision (divisor, dividend) {
@@ -50,10 +59,11 @@ function convert (file) {
   console.log('Converted ' + subtitlesName)
 }
 
-function main (dirPath) {
+function main ({ folder: dirPath }) {
   fs.readdirSync(path.resolve(dirPath)).forEach(file => {
     if (path.extname(file) === '.json') { convert(path.resolve(dirPath, file)) }
   })
 }
 
-main(...process.argv.slice(2))
+const args = parser.parse_args()
+main(args)

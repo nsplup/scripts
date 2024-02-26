@@ -1,7 +1,18 @@
+"use strict";
+
 const fs = require('fs')
 const path = require('path')
 const jschardet = require('jschardet')
 const iconv = require('iconv-lite')
+const { ArgumentParser } = require('argparse')
+
+const version = '0.0.1'
+const parser = new ArgumentParser({
+  description: '计算目标文件包含的汉字数量'
+})
+
+parser.add_argument('-v', '--version', { action: 'version', version })
+parser.add_argument('-i', '--input', { type: 'str', help: '输入路径' })
 
 function getEncoding (filePath) {
   return new Promise((res, rej) => {
@@ -44,11 +55,14 @@ async function countChineseCharacters(filePath) {
   }
 }
 
-const filePath = process.argv[2]
-
-if (filePath) {
-  console.log(`目标路径：${ filePath }`)
-  countChineseCharacters(filePath)
-} else {
-  console.log('请提供文件路径作为命令行参数。')
+function main ({ input: filePath }) {
+  if (filePath) {
+    console.log(`目标路径：${ filePath }`)
+    countChineseCharacters(filePath)
+  } else {
+    console.log('请提供文件路径作为命令行参数。')
+  }
 }
+
+const args = parser.parse_args()
+main(args)

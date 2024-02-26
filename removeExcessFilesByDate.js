@@ -1,7 +1,20 @@
+"use strict";
+
 const fs = require('fs')
 const path = require('path')
+const { ArgumentParser } = require('argparse')
 
-function main (folderPath, limitCount = 5) {
+const version = '0.0.1'
+const parser = new ArgumentParser({
+  description: '遍历文件夹，以修改日期排序，从日期久远的文件开始删除直到满足保留的文件个数'
+})
+
+parser.add_argument('-v', '--version', { action: 'version', version })
+parser.add_argument('-f', '--folder', { type: 'str', help: '目标文件夹' })
+parser.add_argument('-c', '--count', { type: 'int', help: '需要保留的文件个数', default: 5 })
+
+const args = parser.parse_args()
+function main ({ folder: folderPath, count: limitCount }) {
   folderPath = path.resolve(folderPath)
   // 读取文件夹中的所有文件
   fs.readdir(folderPath, (err, files) => {
@@ -34,4 +47,4 @@ function main (folderPath, limitCount = 5) {
   })
 }
 
-main(...process.argv.slice(2))
+main(args)

@@ -1,12 +1,25 @@
+"use strict";
+
 const { resolve, extname, basename } = require('path')
 const { readdirSync } = require('fs')
+const { ArgumentParser } = require('argparse')
 
 const EXTNAMES = [
-  'avif',
   'jpg',
   'jpeg',
-  'png'
+  'png',
+  'gif',
+  'avif',
+  'heif',
 ]
+const version = '0.0.1'
+const parser = new ArgumentParser({
+  description: '遍历漫画根文件夹并检查章节文件夹是否完整'
+})
+
+parser.add_argument('-v', '--version', { action: 'version', version })
+parser.add_argument('-f', '--folder', { type: 'str', help: '漫画根文件夹' })
+parser.add_argument('-d', '--detailed', { type: 'str', help: '是否输出详细日志', default: 'true' })
 
 function isMangaIntegrity (episodePath) {
   try {
@@ -26,14 +39,17 @@ function isMangaIntegrity (episodePath) {
   } catch (e) { return null }
 }
 
-function main (mangaPath, detailed = true) {
+function main ({ folder: mangaPath, detailed }) {
   let episodes
-  switch (detailed) {
-    case 'true':
-      detailed = true
-      break
-    case 'false':
-      detailed = false
+  if (detailed === 'false') {
+    detailed = false
+  } else {
+    detailed = true
+  }
+
+  if (!mangaPath) {
+    console.log(`错误：漫画根文件夹不能为空`)
+    return
   }
 
   try {
@@ -64,4 +80,5 @@ function main (mangaPath, detailed = true) {
   })
 }
 
-main(...process.argv.slice(2))
+const args = parser.parse_args()
+main(args)
