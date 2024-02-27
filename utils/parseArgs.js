@@ -1,6 +1,6 @@
 "use strict";
 
-const badprint = require('./badprint')
+const niceprint = require('./niceprint')
 const path = require('path')
 
 let __version__
@@ -36,7 +36,7 @@ function printHelp (scheme) {
     }
     return [[key, alias].filter(str => str).join(', '), val.help]
   })
-  badprint(schemeEntries)
+  niceprint(schemeEntries, 50, 2)
 }
 
 function printVersion () {
