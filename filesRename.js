@@ -12,7 +12,8 @@ const args = parseArgs({
   f: {
     alias: 'folder',
     type: 'str',
-    help: '目标文件夹'
+    help: '目标文件夹',
+		symbol: 'folder',
   },
 	'H': {
 		alias: 'hash',

@@ -11,7 +11,8 @@ const args = parseArgs({
   f: {
     alias: 'folder',
     type: 'str',
-    help: '输入文件夹'
+    help: '输入文件夹',
+		symbol: 'folder',
   },
 })
 

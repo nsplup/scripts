@@ -13,32 +13,38 @@ const args = parseArgs({
   b: {
     alias: 'blank',
     type: 'str',
-    help: '向指定页码后添加空白页。\nExample: -b [INPUT] -o [OUTPUT] [...PAGE_INDEX]'
+    help: '向指定页码后添加空白页。\nExample: -b [INPUT] -o [OUTPUT] [...PAGE_INDEX]',
+    symbol: 'input',
   },
   c: {
     alias: 'convert',
     type: 'str',
     help: '转换图片为 PDF。\nExample: -c [FOLDER] -o [OUTPUT]',
+    symbol: 'folder',
   },
   m: {
     alias: 'merge',
     type: 'str',
     help: '合并数个 PDF 文件。\nExample: -m [OUTPUT] [...INPUT_FILES]',
+    symbol: 'output',
   },
   ra: {
     alias: 'rearrange',
     type: 'str',
-    help: '截取指定范围的页面插入至指定页码前。\nExample: -ra [INPUT] -o [OUTPUT] [PAGE_INDEX]\n[START-END]',
+    help: '截取指定范围的页面插入至指定页码前。\nExample: -ra [INPUT] -o [OUTPUT] [PAGE_INDEX] [START-END]',
+    symbol: 'input',
   },
   rp: {
     alias: 'replace',
     type: 'str',
     help: '替换 PDF 文件页面。\nExample: -rp [INPUT] -o [OUTPUT]\n[...(PAGE_INDEX, IMG_PATH|EMPTY)]',
+    symbol: 'input',
   },
   o: {
     alias: 'output',
     type: 'str',
     help: '输出路径',
+    symbol: 'output',
   }
 })
 

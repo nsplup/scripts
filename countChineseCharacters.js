@@ -13,7 +13,8 @@ const args = parseArgs({
   i: {
     alias: 'input',
     type: 'str',
-    help: '输入路径'
+    help: '输入路径',
+    symbol: 'input'
   }
 })
 

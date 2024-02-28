@@ -11,7 +11,8 @@ const args = parseArgs({
   f: {
     alias: 'folder',
     type: 'str',
-    help: '漫画根文件夹'
+    help: '漫画根文件夹',
+		symbol: 'folder',
   },
   d: {
     alias: 'detailed',

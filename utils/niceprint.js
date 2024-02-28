@@ -23,7 +23,8 @@ const punctuation = [
   '}',
   ']', '】',
   ';', '；',
-  ')', '）'
+  ')', '）',
+  '|'
 ]
 function sliceStr (str, maxWidth) {
   let lines
@@ -76,18 +77,18 @@ function padEnd (str, maxWidth, fill = ' ') {
   return str + fill.repeat(maxWidth - calculateValue(str))
 }
 
-function merge (left, right, maxWidth) {
+function merge (left, right, [lMax, rMax]) {
   const result = []
-  const lDone = sliceStr(left, maxWidth)
-  const rDone = sliceStr(right, maxWidth)
+  const lDone = sliceStr(left, lMax)
+  const rDone = sliceStr(right, rMax)
 
   /** 当左侧数组长度为一且字符串宽度超过上限宽度时，向右侧数组头部推入空白字符串 */
-  if (lDone.length === 1 && (calculateValue(lDone[0]) > maxWidth)) {
+  if (lDone.length === 1 && (calculateValue(lDone[0]) > lMax)) {
     rDone.unshift('')
   }
   const maxLen = Math.max(lDone.length, rDone.length)
   for (let i = 0; i < maxLen; i++) {
-    let part = padEnd(lDone[i] || '', maxWidth)
+    let part = padEnd(lDone[i] || '', lMax)
     result.push(part + rDone[i])
   }
 

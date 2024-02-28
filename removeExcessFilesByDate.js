@@ -11,13 +11,15 @@ const args = parseArgs({
   f: {
     alias: 'folder',
     type: 'str',
-    help: '目标文件夹'
+    help: '目标文件夹',
+		symbol: 'folder',
   },
   c: {
     alias: 'count',
     type: 'int',
     help: '需要保留的文件个数',
-    default: 5
+    default: 5,
+		symbol: 'count',
   },
 })
 

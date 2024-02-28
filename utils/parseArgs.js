@@ -6,41 +6,50 @@ const path = require('path')
 let __version__
 let __description__
 
+function requiredStr (str) {
+  return typeof str === 'string' && str.length > 0
+}
+
 function print (msg) {
-  typeof msg === 'string' && msg.length > 0 && console.log(msg)
+  requiredStr(msg) && console.log(msg)
 }
 
 function printHelp (scheme) {
   let { define, ..._scheme } = scheme
   let useage = 'Usage: ' + path.basename(process.argv[1]) + ' [-v] [-h]'
   let useage_opt = Object.entries(_scheme).map(([key, val]) => {
-    const alias = val.alias
+    const symbol = val.symbol
 
-    return typeof alias === 'string' && alias.length > 0 ?
-      `[-${ key } ${ alias.toUpperCase() }]` :
+    return requiredStr(symbol) ?
+      `[-${ key } ${ symbol.toUpperCase() }]` :
       `[-${ key }]`
   })
   print([useage].concat(useage_opt).join(' '))
+  console.log('')
   printVersion()
   console.log('')
   print(__description__)
-  console.log('\nOptional Arguments:')
+  console.log('\nOptional Arguments:\n')
   const schemeEntries = Object.entries(_scheme).map(([key, val]) => {
-    let alias = undefined
-    key = '  -' + key
+    let symbol = val.symbol
+    let opt = `-${ key }`
+    let alias = val.alias
 
-    if (val.hasOwnProperty('alias')) {
-      const _alias = val.alias
-      key += ` ${ _alias.toUpperCase() }`
-      alias = '--' + _alias + ` ${ _alias.toUpperCase() }`
+    if (requiredStr(alias)) {
+      alias = `--${ alias }`
     }
-    return [[key, alias].filter(str => str).join(', '), val.help]
+    if (requiredStr(symbol)) {
+      symbol = symbol.toUpperCase()
+      opt += ` [${ symbol }]`
+      alias += `=[${ symbol }]`
+    }
+    return [[opt, alias].filter(str => str).join(', '), val.help]
   })
-  niceprint(schemeEntries, 50, 2)
+  niceprint(schemeEntries, [40, 60], 2)
 }
 
 function printVersion () {
-  print(__version__)
+  print(`Version: ${ __version__ }`)
 }
 
 function parse () {
@@ -164,6 +173,7 @@ function toBoolean (val) {
  *   [shortName]: {
  *     type,
  *     alias,
+ *     symbol,
  *     help,
  *     default,
  *   },

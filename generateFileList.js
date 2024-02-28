@@ -11,12 +11,14 @@ const args = parseArgs({
   f: {
     alias: 'folder',
     type: 'str',
-    help: '目标文件夹'
+    help: '目标文件夹',
+		symbol: 'folder',
   },
   o: {
     alias: 'output',
     type: 'str',
-    help: '输出路径'
+    help: '输出路径',
+    symbol: 'output',
   }
 })
 
