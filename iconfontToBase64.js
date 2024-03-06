@@ -17,7 +17,7 @@ const args = parseArgs({
   o: {
     alias: 'output',
     type: 'str',
-    help: '输出路径',
+    help: '输出路径（默认值为 当前环境目录）',
     default: './',
     symbol: 'output',
   }

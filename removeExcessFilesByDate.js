@@ -17,7 +17,7 @@ const args = parseArgs({
   c: {
     alias: 'count',
     type: 'int',
-    help: '需要保留的文件个数',
+    help: '需要保留的文件个数（默认值为 5）',
     default: 5,
 		symbol: 'count',
   },

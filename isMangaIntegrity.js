@@ -17,7 +17,7 @@ const args = parseArgs({
   d: {
     alias: 'detailed',
     type: 'bool',
-    help: '是否输出详细日志',
+    help: '是否输出详细日志（默认值为 true）',
     default: true
   }
 })

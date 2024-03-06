@@ -18,7 +18,7 @@ const args = parseArgs({
 	'H': {
 		alias: 'hash',
 		type: 'bool',
-		help: '是否重命名为哈希值',
+		help: '是否重命名为哈希值（默认值为 false）',
 		default: false,
 	}
 })
