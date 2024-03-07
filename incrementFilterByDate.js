@@ -6,7 +6,7 @@ const parseArgs = require('./utils/parseArgs')
 const mkdirWhenNotExist = require('./utils/mkdirWhenNotExist')
 const args = parseArgs({
   define: {
-    version: '0.0.1',
+    version: '0.0.2',
     description: '深度遍历文件夹并输出符合条件的文件',
   },
   f: {
@@ -86,12 +86,27 @@ function copy (schemes, output) {
   }
 }
 
+function computeDate (date) {
+  const fullRegexp = /^\d{4}\-\d{2}\-\d{2}(\s+\d{2}\:\d{2}\:\d{2})?$/
+  const partRegexp = /\d{2}\:\d{2}\:\d{2}$/
+  if (!fullRegexp.test(date)) {
+    console.log('错误：日期参数不符合格式 YYYY-MM-DD hh:mm:ss')
+    process.exit()
+  }
+  if (date.match(partRegexp) === null) {
+    date = date.trim() + ' 00:00:00'
+  }
+  return new Date(date).getTime()
+}
+
 function main ({ folder, output, date }) {
-  const computedDate = new Date(date).getTime()
+  const startTime = Date.now()
+  const computedDate = computeDate(date)
   const fileList = generateFileList({ path: [folder], date: null })
     .filter(({ date: _date }) => typeof _date === 'number' && _date > computedDate)
 
   console.log(`已找到：${ fileList.length } 个文件`)
+  console.log(`耗时：${ (Date.now() - startTime) / 1000 } 秒`)
   console.log('')
   if (output) {
     copy(fileList, output)
