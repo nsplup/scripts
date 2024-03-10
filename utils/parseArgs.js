@@ -168,6 +168,10 @@ function toBoolean (val) {
   return result
 }
 
+function isObj (input) {
+  return typeof input === 'object' && !Array.isArray(input)
+}
+
 /**
  * Scheme {
  *   [shortName]: {
@@ -186,7 +190,7 @@ function toBoolean (val) {
  */
 
 function main (scheme) {
-  if (!(typeof scheme === 'object' && !Array.isArray(scheme))) {
+  if (!isObj(scheme)) {
     return new TypeError('Illegal Scheme.')
   }
   const linkedScheme = linkScheme(scheme) /** 处理 alias */
@@ -223,13 +227,15 @@ function main (scheme) {
     })
     const cScheme = linkedScheme[optName]
 
-    if (cScheme && cScheme.hasOwnProperty('type')) { /** 转换值 */
-      const convertedVal = convert(val, cScheme.type)
+    if (isObj(cScheme) && cScheme.hasOwnProperty('type')) {
+      const convertedVal = convert(val, cScheme.type) /** 转换值 */
       result[optName] = convertedVal
       if (isAlias) { result[cScheme.__shortName__] = convertedVal }
       else if (cScheme.hasOwnProperty('alias')) { /** 处理 alias 的值 */
         result[cScheme.alias] = convertedVal
       }
+    } else {
+      return new TypeError('Bad Scheme.')
     }
   }
   const schemeEntries = Object.entries(linkedScheme)
