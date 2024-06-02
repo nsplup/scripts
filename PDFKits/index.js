@@ -1,12 +1,15 @@
+const { parse, join, resolve } = require('path')
 const addBlankPagesToPDF = require('./src/addBlankPagesToPDF')
 const convertImagesToPDF = require('./src/convertImagesToPDF')
 const mergePDF = require('./src/mergePDF')
 const rearrangePDF = require('./src/rearrangePDF')
 const replacePagesInPDF = require('./src/replacePagesInPDF')
+const removePDFMetaData = require('./src/removePDFMetaData')
 const parseArgs = require('../utils/parseArgs')
+const mkdirWhenNotExist = require('../utils/mkdirWhenNotExist')
 const args = parseArgs({
   define: {
-    version: '0.0.1',
+    version: '0.0.2',
     description: 'PDF 文件处理工具集',
     isolated: 'rest'
   },
@@ -40,6 +43,12 @@ const args = parseArgs({
     help: '替换 PDF 文件页面。\nExample: -rp [INPUT] -o [OUTPUT]\n[...(PAGE_INDEX, IMG_PATH|EMPTY)]',
     symbol: 'input',
   },
+  rm: {
+    alias: 'remove',
+    type: 'str',
+    help: '去除 PDF 文件中的附件、目录。\nExample: -rm [INPUT] -o [OUTPUT]',
+    symbol: 'input',
+  },
   o: {
     alias: 'output',
     type: 'str',
@@ -58,10 +67,25 @@ function main ({
   merge,
   rearrange,
   replace,
+  remove,
 
   output,
   rest,
 }) {
+  const modeCount = [
+    blank,
+    convert,
+    merge,
+    rearrange,
+    replace,
+    remove,
+  ].map(isNotNull).filter(n => n).length
+
+  if (modeCount > 1) {
+    console.log('致命错误 - 存在冗余参数')
+    return
+  }
+
   switch (true) {
     case isNotNull(blank):
       addBlankPagesToPDF(blank, output, ...rest)
@@ -78,6 +102,12 @@ function main ({
       break
     case isNotNull(replace):
       replacePagesInPDF(replace, output, ...rest)
+      break
+    case isNotNull(remove):
+      const basename = parse(remove).base
+      const outputDir = resolve(output)
+      mkdirWhenNotExist(outputDir)
+      removePDFMetaData(remove, join(outputDir, basename))
       break
   }
 }

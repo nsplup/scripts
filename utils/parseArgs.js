@@ -235,7 +235,9 @@ function main (scheme) {
         result[cScheme.alias] = convertedVal
       }
     } else {
-      return new TypeError('Bad Scheme.')
+      return isObj(cScheme) ?
+        new TypeError('Bad Scheme.') :
+        new TypeError('Undefiend Argument.')
     }
   }
   const schemeEntries = Object.entries(linkedScheme)
@@ -245,11 +247,11 @@ function main (scheme) {
     const _default = cScheme.default
     if (_default !== undefined) {
       if (!result.hasOwnProperty(key)) {
-        result[key] = _default
+        result[key] = !!result[key] ? result[key] : _default
       }
       const { alias } = cScheme
       if (alias && !result.hasOwnProperty(alias)) {
-        result[alias] = _default
+        result[alias] = !!result[alias] ? result[alias] : _default
       }
     }
   }
