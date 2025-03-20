@@ -7,6 +7,7 @@ const replacePagesInPDF = require('./src/replacePagesInPDF')
 const removePDFMetaData = require('./src/removePDFMetaData')
 const parseArgs = require('../utils/parseArgs')
 const mkdirWhenNotExist = require('../utils/mkdirWhenNotExist')
+const isNotNull = require('../utils/isNotNull')
 const args = parseArgs({
   define: {
     version: '0.0.2',
@@ -56,10 +57,6 @@ const args = parseArgs({
     symbol: 'output',
   }
 })
-
-function isNotNull (val) {
-  return typeof val === 'string' && val.length > 0
-}
 
 function main ({
   blank,

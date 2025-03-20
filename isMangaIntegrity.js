@@ -3,6 +3,7 @@
 const { resolve, extname, basename } = require('path')
 const { readdirSync } = require('fs')
 const parseArgs = require('./utils/parseArgs')
+const getIMGEXTNames = require('./utils/getIMGEXTNames')
 const args = parseArgs({
   define: {
     version: '0.0.1',
@@ -21,14 +22,8 @@ const args = parseArgs({
     default: true
   }
 })
-const EXTNAMES = [
-  'jpg',
-  'jpeg',
-  'png',
-  'gif',
-  'avif',
-  'heif',
-]
+
+const EXTNAMES = getIMGEXTNames()
 
 function isMangaIntegrity (episodePath) {
   try {

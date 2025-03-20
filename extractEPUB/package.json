@@ -1,0 +1,15 @@
+{
+  "name": "extractepub",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "fast-xml-parser": "^5.0.9",
+    "libarchive-wasm": "^1.2.0"
+  }
+}

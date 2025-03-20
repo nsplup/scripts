@@ -4,6 +4,7 @@ const fs = require('fs')
 const path = require('path')
 const sharp = require('sharp')
 const parseArgs = require('./utils/parseArgs')
+const getIMGEXTNames = require('./utils/getIMGEXTNames')
 const args = parseArgs({
   define: {
     version: '0.0.1',
@@ -17,10 +18,11 @@ const args = parseArgs({
   }
 })
 
+const EXTNAMES = getIMGEXTNames()
+
 function isImage(file) {
-  const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.avif', '.heif']
   const ext = path.extname(file).toLowerCase()
-  return imageExtensions.includes(ext)
+  return EXTNAMES.includes(ext)
 }
 
 function isWidthGreaterThanHeight(imagePath) {
