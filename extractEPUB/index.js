@@ -114,7 +114,7 @@ function finish (outputPath, detailed) {
         filesCount -= 1
         detailed && console.log(`已删除：${ oldFile.base }`)
       } else {
-        const newName = (index + 1).toString().padStart(files.length.toString().length, '0') + oldFile.ext
+        const newName = (index + 1).toString().padStart(order.length.toString().length, '0') + oldFile.ext
 
         renameSync(filePath, join(outputPath, newName))
         if (detailed) {
@@ -207,6 +207,9 @@ function main ({ input, output, folder, detailed }) {
       break
     case isNotNull(input):
       extract(input, output, detailed)
+      break
+    default:
+      console.log('致命错误 - 至少包含一项输入路径')
       break
   }
 }
