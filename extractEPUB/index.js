@@ -101,7 +101,7 @@ function finish (outputPath, detailed) {
     }
     /** 重命名并删除多余文件 */
     const files = readdirSync(outputPath)
-    let filesCount = files.length
+    let filesCount = 0
 
     console.log('正在收尾\n')
     for (let file of files) {
@@ -111,11 +111,11 @@ function finish (outputPath, detailed) {
 
       if (index < 0) {
         rmSync(filePath)
-        filesCount -= 1
         detailed && console.log(`已删除：${ oldFile.base }`)
       } else {
         const newName = (index + 1).toString().padStart(order.length.toString().length, '0') + oldFile.ext
 
+        filesCount += 1
         renameSync(filePath, join(outputPath, newName))
         if (detailed) {
           console.log(`重命名：`)
