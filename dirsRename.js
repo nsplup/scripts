@@ -25,7 +25,7 @@ const args = parseArgs({
   m: {
     alias: 'mode',
     type: 'str',
-    help: '增量值模式（默认值为 ORDER）；\n可选值：[ORDER][T:ROMAN][T:CHINA]',
+    help: '增量值模式（默认值为 ORDER）\n可选值：[ORDER][T:ROMAN][T:CHINA]',
     symbol: 'mode',
     default: 'order'
   },
