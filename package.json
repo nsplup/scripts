@@ -3,6 +3,7 @@
     "iconv-lite": "^0.6.3",
     "jschardet": "^3.0.0",
     "pdf-lib": "^1.17.1",
+    "roman-numerals": "^0.3.2",
     "sharp": "^0.32.6"
   }
 }

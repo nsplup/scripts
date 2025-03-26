@@ -7,7 +7,7 @@ const getIMGEXTNames = require('./utils/getIMGEXTNames')
 const args = parseArgs({
   define: {
     version: '0.0.1',
-    description: '遍历漫画根文件夹并检查章节文件夹是否完整',
+    description: '遍历漫画根文件夹并检查章节文件夹完整',
   },
   f: {
     alias: 'folder',
@@ -18,7 +18,7 @@ const args = parseArgs({
   d: {
     alias: 'detailed',
     type: 'bool',
-    help: '是否输出详细日志（默认值为 true）',
+    help: '输出详细日志（默认值为 true）',
     default: true
   }
 })

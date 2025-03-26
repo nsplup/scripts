@@ -6,7 +6,7 @@ const path = require('path')
 const parseArgs = require('./utils/parseArgs')
 const args = parseArgs({
   define: {
-    version: '0.0.1',
+    version: '0.0.2',
     description: '遍历文件夹重命名文件夹内所有文件',
   },
   f: {
@@ -18,20 +18,26 @@ const args = parseArgs({
 	'H': {
 		alias: 'hash',
 		type: 'bool',
-		help: '是否重命名为哈希值（默认值为 false）',
+		help: '重命名为哈希值（默认值为 false）',
 		default: false,
+	},
+	'D': {
+		alias: 'dry-run',
+    type: 'bool',
+    help: '以空运行模式运行（默认值为 false）',
+		default: false
 	}
 })
 
-function main ({ folder, hash }) {
+function main ({ folder, hash, D }) {
 	if (typeof folder === 'string' && folder.length > 0) {
-		rename(folder, hash)
+		rename(folder, hash, D)
 	} else {
 		throw new TypeError('非法的目标文件夹路径')
 	}
 }
 
-function rename (dirPath, toHash) {
+function rename (dirPath, toHash, D) {
 	const files = readdirSync(dirPath)
 	const failed = []
 	
@@ -55,7 +61,7 @@ function rename (dirPath, toHash) {
 			if (oldName !== newName) {
 				console.log(`原文件名：${oldName}`)
 				console.log(`新文件名：${newName}\n`)
-				renameSync(oldName, newName)
+				!D && renameSync(oldName, newName)
 			}
 		} catch (e) {
 			failed.push(oldName)
@@ -66,6 +72,8 @@ function rename (dirPath, toHash) {
 		console.log('\n处理失败项：')
 		console.log(failed.map(n => ' '.repeat(4) + n).join('\n'))
 	}
+
+	D && console.log('\x1B[40m%s\x1B[0m', '当前为空运行模式，不会有任何变更生效')
 }
 
 main(args)
