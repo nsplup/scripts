@@ -2,11 +2,11 @@
 
 const { readdirSync, renameSync } = require('fs')
 const path = require('path')
-const { toArabic } = require('roman-numerals')
+const { toArabic: r2a } = require('roman-numerals')
 const parseArgs = require('./utils/parseArgs')
 const args = parseArgs({
   define: {
-    version: '0.0.2',
+    version: '0.0.3',
     description: '遍历文件夹重命名文件夹内所有子目录',
   },
   f: {
@@ -25,7 +25,7 @@ const args = parseArgs({
   m: {
     alias: 'mode',
     type: 'str',
-    help: '增量值模式（默认值为 ORDER）\n可选值：[ORDER][T:ROMAN][T:CHINA]',
+    help: '增量值模式（默认值为 ORDER）\n可选值：[ORDER][T:ROMAN][T:CHINA][T:ARABIC]',
     symbol: 'mode',
     default: 'order'
   },
@@ -46,11 +46,12 @@ const args = parseArgs({
 
 const RN_REG = /\b[IVXLCDM]+\b/gi
 const P_REG = /\$\{[^\}]*\}/gi
-const MODE_TYPES = [
-  'ORDER',
-  'T:ROMAN',
-  'T:CHINA',
-]
+const MODES = {
+  'ORDER': toPattern,
+  'T:ROMAN': toRoman,
+  'T:CHINA': toChina,
+  'T:ARABIC':toArabic,
+}
 
 function main ({ folder, pattern, R, D, mode }) {
   if (typeof pattern !== 'string') {
@@ -67,7 +68,7 @@ function main ({ folder, pattern, R, D, mode }) {
   if (typeof mode === 'string') {
     mode = mode.toLocaleUpperCase()
   }
-  if (!MODE_TYPES.includes(mode)) {
+  if (!Object.keys(MODES).includes(mode)) {
     throw new TypeError('非法的增量值模式参数')
   }
 
@@ -107,7 +108,7 @@ function getRoman (str) {
   }
   
   return isValidRoman(result) ?
-    toArabic(result) :
+    r2a(result) :
     null
 }
 
@@ -117,7 +118,7 @@ function replaceRoman (str) {
       let roman = fragment.toLocaleUpperCase()
 
       return isValidRoman(roman) ?
-        toArabic(roman) :
+        r2a(roman) :
         fragment
     })
 }
@@ -150,7 +151,7 @@ function parsePattern (pattern) {
   }, result)
 }
 
-function toPattern (increment, pattern, notOrder) {
+function toPattern ({ increment, pattern, notOrder }) {
   let { pad, start } = parsePattern(pattern)
 
   if (notOrder) { start = 0 } /** 非 ORDER 模式时该参数不生效 */
@@ -160,14 +161,32 @@ function toPattern (increment, pattern, notOrder) {
   })
 }
 
-function toRoman (title, pattern) {
-  return toPattern(getRoman(title), pattern, true)
+function toRoman ({ title, pattern }) {
+  return toPattern({
+    increment: getRoman(title),
+    pattern,
+    notOrder: true,
+  })
 }
 
-function toChina (title, pattern) {
+function toChina ({ title, pattern }) {
   console.log('\x1B[40m%s\x1B[0m', '该模式正在开发中')
   process.exit(1)
-  return toPattern(getRoman(title), pattern, true)
+  return toPattern({
+    increment: getRoman(title),
+    pattern,
+    notOrder: true,
+  })
+}
+
+function toArabic ({title, pattern}) {
+  console.log('\x1B[40m%s\x1B[0m', '该模式正在开发中')
+  process.exit(1)
+  return toPattern({
+    increment: getRoman(title),
+    pattern,
+    notOrder: true,
+  })
 }
 
 function rename (dirPath, pattern, R, D, mode) {
@@ -186,19 +205,8 @@ function rename (dirPath, pattern, R, D, mode) {
     const dir = dirs[i]
     const oldName = path.resolve(dirPath, dir)
     try {
-      let newName
+      let newName = MODES[mode].call(MODES, { increment: i, title: dir, pattern })
 
-      switch (mode) {
-        case MODE_TYPES[0]:
-          newName = toPattern(i, pattern)
-          break
-        case MODE_TYPES[1]:
-          newName = toRoman(dir, pattern)
-          break
-        case MODE_TYPES[2]:
-          newName = toChina(dir, pattern)
-          break
-      }
       newName = path.resolve(dirPath, newName)
       if (oldName !== newName) {
         console.log(`原目录名：${oldName}`)
