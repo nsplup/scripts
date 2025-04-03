@@ -9,7 +9,7 @@ const isPlainObject = require('../utils/isPlainObject')
 
 const args = parseArgs({
   define: {
-    version: '0.0.1',
+    version: '0.0.2',
     description: 'EPUB 文件提取工具',
   },
   i: {
