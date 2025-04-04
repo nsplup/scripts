@@ -9,7 +9,7 @@ const isPlainObject = require('../utils/isPlainObject')
 
 const args = parseArgs({
   define: {
-    version: '0.0.2',
+    version: '0.0.3',
     description: 'EPUB 文件提取工具',
   },
   i: {
@@ -113,51 +113,83 @@ const ADS_KEYWORD = [
 ]
 const ADS_REGEXP = new RegExp(ADS_KEYWORD.join('|'), 'gi')
 
-function getAdsOrder (outputPath, manifestMap, spineArr) {
-  const pattern = {
-    'ncx': () => {
-      const filePath = manifestMap['ncx']
-      const fileData = readFileSync(join(outputPath, filePath))
-      const navs = parser.parse(fileData).ncx.navMap.navPoint
-      for (let item of navs) {
-        const { navLabel, content } = item
-        const ref = parse(content.src).base
+function getNavPath (manifest) {
+  const result = []
+  const items = manifest.item
+  
+  for (let item of items) {
+    let type = null, navPath = null
+    const mediaType = item['media-type']
+    const { properties, href } = item
+    const isXML = mediaType === 'application/x-dtbncx+xml'
+    const isXHTML = properties === 'nav'
 
-        if (ADS_REGEXP.test(navLabel.text)) {
-          return spineArr.indexOf(ref)
-        }
-      }
-    },
-    'nav': () => {
-      const filePath = manifestMap['nav']
-      const fileData = readFileSync(join(outputPath, filePath))
-      const navs = parser.parse(fileData).html.body.nav.ol.li
-      for (let item of navs) {
-        const { a } = item
-        const ref = parse(a['href']).base
-
-        if (ADS_REGEXP.test(a['#text'])) {
-          return spineArr.indexOf(ref)
-        }
-      }
+    switch (true) {
+      case isXML:
+        type = 'XML'
+        break
+      case isXHTML:
+        type = 'XHTML'
+        break
+    }
+    if (isXML || isXHTML) {
+      navPath = parse(href).base
+      result.push({ type, navPath })
     }
   }
-  const patternEntries = Object.entries(pattern)
 
-  for (let i = 0, len = patternEntries.length; i < len; i++) {
-    const [name, callback] = patternEntries[i]
+  return result
+}
+
+function matchNav (navObj, outputPath, spineArr) {
+  const { type, navPath } = navObj
+  const fileData = readFileSync(join(outputPath, navPath), { encoding: 'utf8' })
+  let navs = parser.parse(fileData)
+
+  switch (type) {
+    case 'XML':
+      navs = navs.ncx.navMap.navPoint
+      break
+    case 'XHTML':
+      navs = navs.html.body.nav.ol.li
+      break
+  }
+
+  for (let item of navs) {
+    let label, ref
+    switch (type) {
+      case 'XML':
+        label = item.navLabel
+        ref = item.content.src
+        break
+      case 'XHTML':
+        label = item.a['#text']
+        ref = item.a['href']
+        break
+    }
+
+    ref = parse(ref).base
+    if (ADS_REGEXP.test(label)) {
+      return spineArr.indexOf(ref)
+    }
+  }
+}
+
+function getAdsOrder (navObjs, outputPath, spineArr) {
+  for (let i = 0, len = navObjs.length; i < len; i++) {
+    const navObj = navObjs[i]
     try {
-      const adsOrder = callback()
+      const adsOrder = matchNav(navObj, outputPath, spineArr)
 
       if (adsOrder > 0) {
         return adsOrder
       } else { throw new Error('NOT FOUND ADSORDER') }
     } catch (e) {
-      console.log(`无法从 [${ name }] 中找到导航`)
+      console.log(`导航匹配失败：${ navObj.navPath }`)
       console.log('正在尝试下一项')
     }
   }
-  console.log('\x1B[40m%s\x1B[0m', '无法找到导航，本次提取 ADS 参数不生效')
+  console.log('\x1B[40m%s\x1B[0m', '导航匹配失败，本次提取 ADS 参数不生效')
 }
 
 function finish (outputPath, detailed, ads) {
@@ -179,7 +211,8 @@ function finish (outputPath, detailed, ads) {
 
     /** 从导航获取页码 */
     if (!ads) {
-      adsOrder = getAdsOrder(outputPath, manifestMap, spineArr)
+      const navObjs = getNavPath(manifest)
+      adsOrder = getAdsOrder(navObjs, outputPath, spineArr)
     }
     /** 根据 spine 列表建立图片顺序表 */
     let order = []
