@@ -5,5 +5,8 @@
     "pdf-lib": "^1.17.1",
     "roman-numerals": "^0.3.2",
     "sharp": "^0.32.6"
+  },
+  "devDependencies": {
+    "@types/node": "^22.14.0"
   }
 }
