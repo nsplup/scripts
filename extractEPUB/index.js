@@ -9,7 +9,7 @@ const isPlainObject = require('../utils/isPlainObject')
 
 const args = parseArgs({
   define: {
-    version: '0.0.3',
+    version: '0.0.4',
     description: 'EPUB 文件提取工具',
   },
   i: {
@@ -192,6 +192,19 @@ function getAdsOrder (navObjs, outputPath, spineArr) {
   console.log('\x1B[40m%s\x1B[0m', '导航匹配失败，本次提取 ADS 参数不生效')
 }
 
+function listAllRepeated (order) {
+  const tmp = {}
+
+  for (let i = 0, len = order.length; i < len; i++) {
+    const item = order[i]
+    if (tmp.hasOwnProperty(item)) {
+      console.log(`重复引用：${ item }，下标：${ i }`)
+    } else {
+      tmp[item] = true
+    }
+  }
+}
+
 function finish (outputPath, detailed, ads) {
   try {
     /** 从 container.xml 得到 rootfile 路径 */
@@ -227,7 +240,7 @@ function finish (outputPath, detailed, ads) {
     }
     /** 重命名并删除多余文件 */
     const files = readdirSync(outputPath)
-    const oLen = order.length
+    const oLen = Array.from(new Set(order.concat())).length /** 处理重复引用导致的计数不一致问题 */
 
     console.log('正在收尾\n')
     for (let file of files) {
@@ -257,6 +270,8 @@ function finish (outputPath, detailed, ads) {
     } else {
       console.log(`\x1b[31m未通过完整性校验\x1b[0m\n`)
     }
+
+    detailed && listAllRepeated(order)
   } catch (e) {
     throw e
   }
