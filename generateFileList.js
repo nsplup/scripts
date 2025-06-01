@@ -5,7 +5,7 @@ const { readdirSync, lstatSync, writeFileSync } = require('fs')
 const parseArgs = require('./utils/parseArgs')
 const args = parseArgs({
   define: {
-    version: '0.0.1',
+    version: '0.0.2',
     description: '深度遍历文件夹并输出文件夹结构',
   },
   f: {
@@ -19,10 +19,17 @@ const args = parseArgs({
     type: 'str',
     help: '输出路径',
     symbol: 'output',
+  },
+  d: {
+    alias: 'depth',
+    type: 'int',
+    help: '最大遍历深度',
+    symbol: 'depth',
+    default: Infinity,
   }
 })
 
-function generateFileList (dirpath, depth = 0) {
+function generateFileList (dirpath, depth = 0, maxDepth) {
   const results = []
   const files = readdirSync(resolve(dirpath))
   
@@ -35,16 +42,16 @@ function generateFileList (dirpath, depth = 0) {
     const isDir = lstatSync(resolvedPath).isDirectory()
 
     results.push('　'.repeat(depth) + target)
-    if (isDir) {
-      results.push(generateFileList(resolvedPath, depth + 1))
+    if (isDir && depth < maxDepth) {
+      results.push(generateFileList(resolvedPath, depth + 1, maxDepth))
     }
   }
 
   return results.join('\n')
 }
 
-function main ({ folder: input, output }) {
-  const fileList = generateFileList(input)
+function main ({ folder: input, output, depth: maxDepth }) {
+  const fileList = generateFileList(input, 0, maxDepth)
 
   if (output) {
     const resolvedPath = resolve(resolve(output), basename(input) + '.txt')
