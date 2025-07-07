@@ -8,6 +8,7 @@ const removePDFMetaData = require('./src/removePDFMetaData')
 const parseArgs = require('../utils/parseArgs')
 const mkdirWhenNotExist = require('../utils/mkdirWhenNotExist')
 const isNotNull = require('../utils/isNotNull')
+const onlySingleMode = require('../utils/onlySingleMode')
 const args = parseArgs({
   define: {
     version: '0.0.2',
@@ -69,19 +70,14 @@ function main ({
   output,
   rest,
 }) {
-  const modeCount = [
+  onlySingleMode([
     blank,
     convert,
     merge,
     rearrange,
     replace,
     remove,
-  ].map(isNotNull).filter(n => n).length
-
-  if (modeCount > 1) {
-    console.log('致命错误 - 存在冗余参数')
-    return
-  }
+  ], true)
 
   switch (true) {
     case isNotNull(blank):

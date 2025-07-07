@@ -5,6 +5,7 @@ const { XMLParser } = require('fast-xml-parser')
 const parseArgs = require('../utils/parseArgs')
 const mkdirWhenNotExist = require('../utils/mkdirWhenNotExist')
 const isNotNull = require('../utils/isNotNull')
+const onlySingleMode = require('../utils/onlySingleMode')
 const isPlainObject = require('../utils/isPlainObject')
 
 const args = parseArgs({
@@ -328,15 +329,7 @@ async function extractAll (folder, output, detailed, ads) {
 }
 
 function main ({ input, output, folder, detailed, ads }) {
-  const modeCount = [
-    input,
-    folder,
-  ].map(isNotNull).filter(n => n).length
-
-  if (modeCount > 1) {
-    console.log('致命错误 - 存在冗余参数')
-    return
-  }
+  onlySingleMode([ input, folder ], true)
 
   if (!isNotNull(output)) {
     console.log('致命错误 - 输出文件夹路径不能为空')

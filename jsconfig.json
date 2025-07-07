@@ -1,0 +1,7 @@
+{
+  "compilerOptions": {
+    "module": "CommonJS", // 或者 "ESNext", "NodeNext" 等，取决于你的模块系统
+    "target": "ES2022",   // 或者你目标运行的 ES 版本，如 "ESNext"
+    "allowSyntheticDefaultImports": true,
+  },
+}
