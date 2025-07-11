@@ -1,5 +1,5 @@
 const { readFileSync, writeFileSync, renameSync } = require('fs')
-const { resolve, join } = require('path')
+const { resolve, join, parse } = require('path')
 const { spawn } = require('child_process')
 const parseArgs = require('../utils/parseArgs')
 const isNotNull = require('../utils/isNotNull')
@@ -70,6 +70,9 @@ function getPinCand () {
   }
   return pinCand
 }
+// function parsePinCand () {
+
+// }
 function parsePinCand (string) {
   const result = []
   const lines = string.split(/[\r\n]+/)
@@ -198,6 +201,37 @@ function format (store) {
 
   return result.join('\n')
 }
+function format2Tabledb (store) {
+  const result = [
+    '# Rime table',
+    '# coding: utf-8',
+    '#@/db_name	custom_phrase.txt',
+    '#@/db_type	tabledb',
+    '',
+    '## 置顶词与自定义词组在这个文件里指定',
+    '## 格式：文本-输入码-权重，其间用 Tab 符分隔',
+    '## 置顶字词',
+  ]
+  const BASE_QUALITY = 9999
+
+  for (let item of store) {
+    let { encoding, character } = item
+    for (let i = 0, len = character.length; i < len; i++) {
+      const char = character[i]
+      result.push(`${ char }\t${ encoding }\t${ len - i }`)
+    }
+  }
+  return result.join('\n')
+}
+function y2t () {
+  const store = getPinCand()
+  const { path: pinCandPath } = getConf()
+  const content = format2Tabledb(store)
+  const { dir } = parse(pinCandPath)
+  const dbPath = join(dir, 'custom_phrase.txt')
+
+  writeFileSync(dbPath, content, { encoding: 'utf8' })
+}
 function save (store) {
   const content = format(store)
   const { path: pinCandPath } = getConf()
@@ -222,3 +256,4 @@ function doDeploy () {
 }
 
 main(args)
+// y2t()
