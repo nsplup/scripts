@@ -5,13 +5,14 @@ const mergePDF = require('./src/mergePDF')
 const rearrangePDF = require('./src/rearrangePDF')
 const replacePagesInPDF = require('./src/replacePagesInPDF')
 const removePDFMetaData = require('./src/removePDFMetaData')
+const editPDFMetaData = require('./src/editPDFMetaData')
 const parseArgs = require('../utils/parseArgs')
 const mkdirWhenNotExist = require('../utils/mkdirWhenNotExist')
 const isNotNull = require('../utils/isNotNull')
 const onlySingleMode = require('../utils/onlySingleMode')
 const args = parseArgs({
   define: {
-    version: '0.0.2',
+    version: '0.0.3',
     description: 'PDF 文件处理工具集',
     isolated: 'rest'
   },
@@ -32,6 +33,12 @@ const args = parseArgs({
     type: 'str',
     help: '合并数个 PDF 文件。\nExample: -m [OUTPUT] [...INPUT_FILES]',
     symbol: 'output',
+  },
+  e: {
+    alias: 'edit',
+    type: 'str',
+    help: '修改 PDF 文件的页标签及书签。\nExample: -e [INPUT] -o [OUTPUT] [TOC_INDEX, BASE_PAGE_INDEX]\nExample: -e [INPUT] -o [OUTPUT] [TOC_FILE_PATH]',
+    symbol: 'input',
   },
   ra: {
     alias: 'rearrange',
@@ -66,6 +73,7 @@ function main ({
   rearrange,
   replace,
   remove,
+  edit,
 
   output,
   rest,
@@ -77,6 +85,7 @@ function main ({
     rearrange,
     replace,
     remove,
+    edit,
   ], true)
 
   switch (true) {
@@ -101,6 +110,9 @@ function main ({
       const outputDir = resolve(output)
       mkdirWhenNotExist(outputDir)
       removePDFMetaData(remove, join(outputDir, basename))
+      break
+    case isNotNull(edit):
+      editPDFMetaData(edit, output, rest)
       break
   }
 }
