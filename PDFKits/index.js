@@ -12,50 +12,50 @@ const isNotNull = require('../utils/isNotNull')
 const onlySingleMode = require('../utils/onlySingleMode')
 const args = parseArgs({
   define: {
-    version: '0.0.3',
+    version: '0.0.4',
     description: 'PDF 文件处理工具集',
     isolated: 'rest'
   },
   b: {
     alias: 'blank',
     type: 'str',
-    help: '向指定页码后添加空白页。\nExample: -b [INPUT] -o [OUTPUT] [...PAGE_INDEX]',
+    help: '向指定页码后添加空白页\nExample: -b [INPUT] -o [OUTPUT] [...PAGE_INDEX]',
     symbol: 'input',
   },
   c: {
     alias: 'convert',
     type: 'str',
-    help: '转换图片为 PDF。\nExample: -c [FOLDER] -o [OUTPUT]',
+    help: '转换图片为 PDF\nExample: -c [FOLDER] -o [OUTPUT]',
     symbol: 'folder',
   },
   m: {
     alias: 'merge',
     type: 'str',
-    help: '合并数个 PDF 文件。\nExample: -m [OUTPUT] [...INPUT_FILES]',
+    help: '合并数个 PDF 文件\nExample: -m [OUTPUT] [...INPUT_FILES]',
     symbol: 'output',
   },
   e: {
     alias: 'edit',
     type: 'str',
-    help: '修改 PDF 文件的页标签及书签。\nExample: -e [INPUT] -o [OUTPUT] [TOC_INDEX, BASE_PAGE_INDEX]\nExample: -e [INPUT] -o [OUTPUT] [TOC_FILE_PATH]',
+    help: '修改 PDF 文件的页标签及书签\nExample: -e [INPUT] -o [OUTPUT] [TOC_INDEX, BASE_PAGE_INDEX] # 设置页标签\nExample: -e [INPUT] -o [OUTPUT] [TOC_FILE_PATH] # 嵌入书签\nExample: -e [INPUT] -o [OUTPUT] # 提取书签',
     symbol: 'input',
   },
   ra: {
     alias: 'rearrange',
     type: 'str',
-    help: '截取指定范围的页面插入至指定页码前。\nExample: -ra [INPUT] -o [OUTPUT] [PAGE_INDEX] [START-END]',
+    help: '截取指定范围的页面插入至指定页码前\nExample: -ra [INPUT] -o [OUTPUT] [PAGE_INDEX] [START-END]',
     symbol: 'input',
   },
   rp: {
     alias: 'replace',
     type: 'str',
-    help: '替换 PDF 文件页面。\nExample: -rp [INPUT] -o [OUTPUT]\n[...(PAGE_INDEX, IMG_PATH|EMPTY)]',
+    help: '替换 PDF 文件页面\nExample: -rp [INPUT] -o [OUTPUT]\n[...(PAGE_INDEX, IMG_PATH|EMPTY)]',
     symbol: 'input',
   },
   rm: {
     alias: 'remove',
     type: 'str',
-    help: '去除 PDF 文件中的附件、目录。\nExample: -rm [INPUT] -o [OUTPUT]',
+    help: '去除 PDF 文件中的附件、目录\nExample: -rm [INPUT] -o [OUTPUT]',
     symbol: 'input',
   },
   o: {

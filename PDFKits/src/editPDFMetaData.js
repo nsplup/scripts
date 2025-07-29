@@ -43,7 +43,7 @@ function runCommand(command, options = {}) {
  * @returns {Promise<string|null>} Path to python3 executable or null if not found.
  */
 async function checkPython3() {
-    console.log('Checking for Python 3...');
+    console.log('Checking for Python 3');
     try {
         const pythonVersion = await runCommand('python3 --version');
         if (pythonVersion.includes('Python 3.')) {
@@ -145,7 +145,7 @@ async function isPackageInstalled(venvPythonPath, packageName) {
  * @returns {Promise<void>}
  */
 async function installPackage(venvPythonPath, packageName) {
-    console.log(`Installing ${packageName} in the virtual environment...`);
+    console.log(`Installing ${packageName} in the virtual environment`);
     await runCommand(`"${venvPythonPath}" -m pip install ${packageName}`);
     console.log(`${packageName} installed successfully.`);
 }
@@ -158,7 +158,7 @@ async function installPackage(venvPythonPath, packageName) {
  * @returns {Promise<string>} The stdout of the Python code execution.
  */
 async function runPythonCode(venvPythonPath, pythonCode, args = []) {
-    console.log('Running Python code from string...');
+    console.log('Running Python code from string');
     
     // 1. 创建临时文件保存Python代码
     const tempDir = os.tmpdir();
@@ -193,6 +193,7 @@ async function runPythonCode(venvPythonPath, pythonCode, args = []) {
 
 const PAGE_LABEL = 'PAGE_LABEL'
 const BOOKMARK = 'BOOKMARK'
+const EXPORT_TOC = 'EXPORT_TOC'
 const PYTHON_SNIPPET = {
     [PAGE_LABEL]: 
 `# -*- coding: utf-8 -*-
@@ -383,19 +384,20 @@ def create_pdf_bookmarks_from_toc(pdf_path, toc_file_path, output_path):
                     try:
                         toc_page_num_1_based = int(page_str)
                         
-                        if toc_page_num_1_based <= 0:
+                        if toc_page_num_1_based == 0:
                             print(f"Warning: Page number for '{title}' is non-positive ({toc_page_num_1_based}). Setting destination to null.")
-                            # 页码小于等于0，设置为None
+                            # 页码等于0，设置为None
                             actual_zero_based_page_number = None
+                        elif toc_page_num_1_based >= 1:
+                            toc_page_num_1_based -= 1
+                        calculated_page = toc_page_num_1_based + base_page_offset
+                        
+                        # 检查计算出的页码是否在有效范围内
+                        if 0 <= calculated_page < total_pdf_pages:
+                            actual_zero_based_page_number = calculated_page
                         else:
-                            calculated_page = (toc_page_num_1_based - 1) + base_page_offset
-                            
-                            # 检查计算出的页码是否在有效范围内
-                            if 0 <= calculated_page < total_pdf_pages:
-                                actual_zero_based_page_number = calculated_page
-                            else:
-                                print(f"Warning: Page number for '{title}' ({toc_page_num_1_based}) maps to physical page {calculated_page}, which is out of bounds (0-{total_pdf_pages-1}). Setting destination to null.")
-                                actual_zero_based_page_number = None
+                            print(f"Warning: Page number for '{title}' ({toc_page_num_1_based}) maps to physical page {calculated_page}, which is out of bounds (0-{total_pdf_pages-1}). Setting destination to null.")
+                            actual_zero_based_page_number = None
 
                     except ValueError:
                         print(f"Warning: Invalid page number format for '{title}' ('{page_str}'). Setting destination to null.")
@@ -448,6 +450,121 @@ if __name__ == "__main__":
     output_pdf_path = sys.argv[3]
 
     create_pdf_bookmarks_from_toc(input_pdf_path, toc_file_path, output_pdf_path)
+`,
+    [EXPORT_TOC]:
+`# -*- coding: utf-8 -*-
+import pikepdf
+import sys
+import os
+
+def find_base_page_from_page_labels(pdf):
+    """
+    查找 PDF 的 /PageLabels 字典中，/S 键值为 /D (Decimal) 的起始页码。
+    这个页码将作为书签导出时页码的基准页 (零基)。
+
+    Args:
+        pdf_path (str): 输入 PDF 文件的路径。
+
+    Returns:
+        int: 找到的基准页码 (零基)，如果未找到则返回 0。
+    """
+    try:
+        # 使用 pdf.Root 访问 PDF 的根字典
+        if '/PageLabels' in pdf.Root:
+            page_labels = pdf.Root['/PageLabels']
+
+            if '/Nums' in page_labels:
+                nums_array = page_labels['/Nums']
+                
+                for i in range(0, len(nums_array), 2):
+                    start_page_index = nums_array[i]
+                    label_dict = nums_array[i+1]
+                    
+                    if '/S' in label_dict and label_dict['/S'] == '/D':
+                        print(f"Found base page from /PageLabels with /S: /D at zero-based index: {start_page_index}")
+                        return int(start_page_index)
+            else:
+                print("No /Nums array found in /PageLabels dictionary.")
+        else:
+            print("No /PageLabels dictionary found in PDF root.")
+
+    except pikepdf.PdfError as e:
+        print(f"Error opening PDF file {pdf_path} to find base page: {e}")
+    except Exception as e:
+        print(f"An unexpected error occurred while searching for base page from /PageLabels: {e}")
+    
+    print("Could not find a base page from /PageLabels with /S: /D. Defaulting to 0.")
+    return 0 # 默认返回0，表示从PDF的物理第一页开始计算
+
+def export_pdf_bookmarks_to_toc(pdf_path, output_toc_path):
+    """
+    导出 PDF 书签到指定格式的 TOC 文件。
+
+    Args:
+        pdf_path (str): 输入 PDF 文件的路径。
+        output_toc_path (str): 输出 TOC 文件的路径。
+    """
+    try:
+        pdf = pikepdf.Pdf.open(pdf_path)
+    except pikepdf.PdfError as e:
+        print(f"Error opening PDF file {pdf_path}: {e}")
+        return
+
+    base_page_offset = find_base_page_from_page_labels(pdf)
+
+    def write_outline_item(item, current_indent_level, file, base_offset, pdf_obj):
+        indent_str = '\\t' * current_indent_level
+        cleaned_title = item.title.strip()
+        page_num_1_based = None # Initialize to None
+        
+        if item.action is None:
+            if item.destination is not None and len(item.destination) > 0:
+                page_num_1_based = pdf.pages.index(item.destination[0])
+        else:
+            if '/D' in item.action and len(item.action['/D']) > 0:
+                page_num_1_based = pdf.pages.index(item.action['/D'][0])
+
+        if page_num_1_based is not None:
+            offset_from_base = page_num_1_based - base_offset
+                            
+            if offset_from_base < 0:
+                # If target page is before the base page, output its 1-based physical page number.
+                page_num_1_based = offset_from_base
+            else:
+                # If target page is at or after the base page, output its 1-based logical page number
+                # relative to the base page.
+                page_num_1_based = offset_from_base + 1
+        else:
+            # Handle cases where page number could not be determined
+            page_num_1_based = "" # Or some other indicator like "N/A"
+            print(f"Warning: Could not determine page for bookmark '{cleaned_title}'.")
+
+
+        page_str = str(page_num_1_based) if page_num_1_based is not None else ""
+        file.write(f"{indent_str}{cleaned_title}\\t{page_str}\\n")
+
+        # Recursively process child bookmarks
+        for child in item.children:
+            write_outline_item(child, current_indent_level + 1, file, base_offset, pdf_obj)
+
+    try:
+        with open(output_toc_path, 'w', encoding='utf-8') as f:
+            print(f"Exporting bookmarks from {pdf_path} to {output_toc_path}")
+            with pdf.open_outline() as outline:
+                for item in outline.root:
+                    write_outline_item(item, 0, f, base_page_offset, pdf) # Pass pdf object
+        print("Bookmark export completed.")
+    except Exception as e:
+        print(f"Error exporting bookmarks: {e}")
+
+if __name__ == "__main__":
+    if len(sys.argv) < 3:
+        print("Usage: python script.py <input_pdf_path> <output_toc_path>")
+        sys.exit(1)
+
+    input_pdf = sys.argv[1]
+    output_toc = sys.argv[2]
+    export_pdf_bookmarks_to_toc(input_pdf, output_toc)
 `
 }
 
@@ -459,7 +576,10 @@ function processRestArray(rest) {
   let flag;
   let processedRest;
 
-  if (rest.length === 1) {
+  if (rest.length === 0) {
+    flag = EXPORT_TOC
+    processedRest = []
+  } else if (rest.length === 1) {
     flag = BOOKMARK;
     processedRest = resolve(rest[0]); // Resolve the value and remove array structure
   } else if (rest.length === 2) {
