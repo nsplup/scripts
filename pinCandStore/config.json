@@ -1,4 +1,4 @@
 {
-  "path": "C:\\Users\\Admin\\AppData\\Roaming\\Rime\\pin_cand.yaml",
-  "deploy": "C:\\Program Files\\Rime"
+  "path": "/home/noname/.local/share/fcitx5/rime/pin_cand.yaml",
+  "deploy": "dbus-send --type=method_call --dest=org.fcitx.Fcitx5 /controller org.fcitx.Fcitx.Controller1.SetConfig string:fcitx://config/addon/rime/deploy variant:string:''"
 }

@@ -242,11 +242,14 @@ function save (store) {
   writeFileSync(oldPath, content, { encoding: 'utf8' })
 }
 function doDeploy () {
-  const { deploy: deployPath } = getConf()
-  const command = ['/deploy']
-  const program = findFileSync(deployPath, WEASEL_DEPLOYER)
+  let { deploy: command } = getConf()
+
+  command = command.split(/\s+/g)
+
+  let args = command.slice(1)
+  command = command[0]
   
-  const child = spawn(program, command, {
+  const child = spawn(command, args, {
     detached: true,
     stdio: 'ignore'
   })
