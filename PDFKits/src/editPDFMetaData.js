@@ -5,7 +5,6 @@ const { resolve } = path;
 const os = require('os');
 
 // --- Configuration ---
-const VENV_DIR_NAME = 'PDFKits'; // Name of your virtual environment directory
 const PACKAGE_NAME = 'pikepdf'; // The Python package to check/install
 
 // --- Functions ---
@@ -72,19 +71,12 @@ async function checkPython3() {
  * @returns {string} The path for the virtual environment.
  */
 function getVenvBasePath() {
-    let baseDir;
-    switch (os.platform()) {
-        case 'win32':
-            baseDir = path.join(os.tmpdir(), 'nodejs_pyvenv');
-            break;
-        case 'darwin': // macOS
-        case 'linux':
-            baseDir = path.join('/tmp', 'nodejs_pyvenv');
-            break;
-        default:
-            console.warn('Unsupported OS, using current working directory for virtual environment.');
-            baseDir = path.join(__dirname, 'nodejs_pyvenv');
-    }
+    // 获取入口文件所在目录
+    const entryDir = path.dirname(require.main.filename);
+
+    // 在入口目录下创建 venv 子目录
+    const baseDir = path.join(entryDir, 'venv');
+
     return baseDir;
 }
 
@@ -94,7 +86,7 @@ function getVenvBasePath() {
  * @returns {string} The full path to the virtual environment.
  */
 function getVenvFullPath(venvBasePath) {
-    const venvFullPath = path.join(venvBasePath, VENV_DIR_NAME);
+    const venvFullPath = venvBasePath;
     if (!fs.existsSync(venvFullPath)) {
         console.log(`Creating virtual environment directory: ${venvFullPath}`);
         fs.mkdirSync(venvFullPath, { recursive: true });
